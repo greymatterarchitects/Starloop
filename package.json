@@ -1,0 +1,26 @@
+{
+  "name": "starloop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "StarLoop – live celebrity, movie and fan-club hub for Tollywood, Kollywood, Bollywood, Sandalwood, Mollywood and Hollywood",
+  "scripts": {
+    "dev": "node dev.js",
+    "server": "node server/index.js",
+    "build": "vite build",
+    "start": "vite build && node server/index.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0",
+    "fast-xml-parser": "^5.12.1",
+    "lucide-react": "^1.80.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.7"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.3.0",
+    "concurrently": "^10.0.7",
+    "vite": "^8.3.8"
+  }
+}
