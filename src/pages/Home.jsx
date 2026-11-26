@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { INDUSTRY_CHIPS, timeAgo, useApi, useLocal } from '../api.js';
+import { INDUSTRY_CHIPS, readCache, useApi, useLocal, writeCache } from '../api.js';
 import { Avatar, StoryRing, BellButton, BottomNavHome, Chips, ErrorNote, Laurel, Logo, ProfileAvatar, Skel, Verified } from '../components/ui.jsx';
 import SearchBox from '../components/SearchBox.jsx';
 import FeedCard from '../components/FeedCard.jsx';
@@ -18,8 +18,9 @@ export default function Home() {
   const ranked = useApi(`/api/stars?industry=${industry}&scope=${scope}&limit=3`);
   const fan = useFan();
   const [feed, setFeed] = useState({ data: null, error: null });
-  const loadFeed = useCallback(() => fanGet(`/api/fans/feed?industry=${industry}`).then((d) => setFeed({ data: d, error: null })).catch((e) => setFeed((f) => ({ ...f, error: e.message }))), [industry, fan.id]);
-  useEffect(() => { setFeed({ data: null, error: null }); loadFeed(); const t = setInterval(loadFeed, 5 * 60_000); return () => clearInterval(t); }, [loadFeed]);
+  const feedKey = `feed:${industry}:${fan.id || 'anon'}`;
+  const loadFeed = useCallback(() => fanGet(`/api/fans/feed?industry=${industry}`).then((d) => { writeCache(feedKey, d); setFeed({ data: d, error: null }); }).catch((e) => setFeed((f) => ({ ...f, error: f.data ? null : e.message }))), [industry, fan.id]);
+  useEffect(() => { setFeed({ data: readCache(feedKey), error: null }); loadFeed(); const t = setInterval(loadFeed, 5 * 60_000); return () => clearInterval(t); }, [loadFeed]);
   const [need, setNeed] = useState(null);
   const requireFan = async (fn) => { if (!fan.registered) return setNeed(() => fn); try { await fn(); } catch (e) { if (e.status === 401) setNeed(() => fn); } };
   const list = stars.data?.stars || [];

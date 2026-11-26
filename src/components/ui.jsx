@@ -170,16 +170,9 @@ export function BottomNavHome() {
   );
 }
 
-export function BottomNavDiscover({ onStar }) {
-  return (
-    <nav className="bnav bnav--disc">
-      <NavLink to="/" end className="bnav__item"><House size={26} strokeWidth={1.6} /><span>Home</span></NavLink>
-      <NavLink to="/clubs" className="bnav__item"><UsersRound size={26} strokeWidth={1.6} /><span>Clubs</span></NavLink>
-      <button className="bnav__fab bnav__fab--orange" aria-label="Star spotlight" onClick={onStar}><Star size={30} fill="#fff" strokeWidth={0} /></button>
-      <NavLink to="/chat" className="bnav__item"><MessageSquareMore size={26} strokeWidth={1.6} /><span>Messages</span></NavLink>
-      <NavLink to="/profile" className="bnav__item"><User size={26} strokeWidth={1.6} /><span>Profile</span></NavLink>
-    </nav>
-  );
+/** Every page uses the same bar: Home · Clubs · (+ Create post) · Messages · Profile. */
+export function BottomNavDiscover() {
+  return <BottomNavHome />;
 }
 
 export function Chips({ items, value, onChange, variant = 'home' }) {

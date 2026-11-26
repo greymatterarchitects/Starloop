@@ -20,6 +20,15 @@ app.get('/uploads/:name', async (req, res) => {
   res.type(req.params.name.split('.').pop()).set('Cache-Control', 'public, max-age=604800, immutable').send(img);
 });
 app.use(express.json({ limit: '20kb' }));
+// Public, non-personal data can be served from Vercel's CDN: instant for visitors, fresh within minutes.
+const CDN = { '/api/stars': 600, '/api/news': 600, '/api/clubs': 600, '/api/movies': 3600, '/api/industries': 86400, '/api/search': 3600, '/api/sources': 900 };
+app.use((req, res, next) => {
+  if (req.method === 'GET') {
+    const hit = Object.keys(CDN).find((p) => req.path === p || req.path.startsWith(p + '/'));
+    if (hit) res.set('Cache-Control', `public, max-age=60, s-maxage=${CDN[hit]}, stale-while-revalidate=86400`);
+  }
+  next();
+});
 const PORT = process.env.API_PORT || process.env.PORT || 5050;
 
 const wrap = (fn) => async (req, res) => {

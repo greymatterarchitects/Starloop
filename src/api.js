@@ -1,8 +1,29 @@
 import { useEffect, useState, useCallback } from 'react';
 
-/** Fetch JSON from the StarLoop API and refresh it periodically (live data). */
+/* Last good response per URL, kept in this browser so pages render instantly on the next visit
+   while fresh data loads in the background (stale-while-revalidate). */
+const CACHE_PREFIX = 'starloop:cache:';
+const CACHE_MAX_AGE = 24 * 3600_000;
+export function readCache(key) {
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_PREFIX + key));
+    return c && Date.now() - c.at < CACHE_MAX_AGE ? c.data : null;
+  } catch { return null; }
+}
+export function writeCache(key, data) {
+  try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ at: Date.now(), data })); }
+  catch { // storage full: drop old entries and try once more
+    Object.keys(localStorage).filter((k) => k.startsWith(CACHE_PREFIX)).forEach((k) => localStorage.removeItem(k));
+    try { localStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ at: Date.now(), data })); } catch {}
+  }
+}
+
+/** Fetch JSON from the StarLoop API and refresh it periodically (live data). Shows cached data instantly. */
 export function useApi(path, refreshMs = 5 * 60_000) {
-  const [state, setState] = useState({ data: null, loading: !!path, error: null });
+  const [state, setState] = useState(() => {
+    const cached = path ? readCache(path) : null;
+    return { data: cached, loading: !!path, error: null, stale: !!cached };
+  });
   useEffect(() => {
     if (!path) return;
     let alive = true;
@@ -13,9 +34,10 @@ export function useApi(path, refreshMs = 5 * 60_000) {
           if (!r.ok) throw new Error(j.error || r.statusText);
           return j;
         })
-        .then((data) => alive && setState({ data, loading: false, error: null }))
-        .catch((e) => alive && setState((s) => ({ ...s, loading: false, error: e.message })));
-    setState({ data: null, loading: true, error: null });
+        .then((data) => { writeCache(path, data); if (alive) setState({ data, loading: false, error: null, stale: false }); })
+        .catch((e) => alive && setState((s) => ({ ...s, loading: false, error: s.data ? null : e.message })));
+    const cached = readCache(path);
+    setState({ data: cached, loading: true, error: null, stale: !!cached });
     load();
     const t = setInterval(load, refreshMs);
     return () => { alive = false; clearInterval(t); };
