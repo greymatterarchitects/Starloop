@@ -6,7 +6,7 @@ import { CLUBS, INDUSTRIES, INDUSTRY_IDS, industryTag } from './industries.js';
 import { allStars, findStar, industryStars, movies, searchWiki } from './wiki.js';
 import { news } from './news.js';
 import { fanRouter, readImage, UPLOADS } from './fans.js';
-import { redis, storageKind } from './storage.js';
+import { redis, storageEnvNames, storageKind } from './storage.js';
 import { OUTLETS, outletItems } from './outlets.js';
 import { discoveredStars } from './discover.js';
 
@@ -36,7 +36,7 @@ const starsFor = (industry, scope) => (validIndustry(industry) ? industryStars(i
 
 // Health: which fan-data storage is active and whether it responds (no data returned).
 app.get('/api/health', async (req, res) => {
-  const out = { ok: true, storage: storageKind, platform: process.env.VERCEL ? 'vercel' : 'local' };
+  const out = { ok: true, storage: storageKind, platform: process.env.VERCEL ? 'vercel' : 'local', storageSettingsFound: storageEnvNames };
   if (redis) {
     const t = Date.now();
     try { await redis.get('starloop:ver'); out.redis = { reachable: true, ms: Date.now() - t }; }

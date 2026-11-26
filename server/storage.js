@@ -4,8 +4,19 @@
 import fs from 'node:fs';
 import { Redis } from '@upstash/redis';
 
-const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+// Accept the standard names, or any custom prefix Vercel's integration may add (e.g. STORAGE_KV_REST_API_URL).
+const pick = (suffixes) => {
+  for (const sfx of suffixes) {
+    if (process.env[sfx]) return process.env[sfx];
+    const k = Object.keys(process.env).find((n) => n.endsWith(`_${sfx}`) && process.env[n]);
+    if (k) return process.env[k];
+  }
+  return undefined;
+};
+const url = pick(['KV_REST_API_URL', 'UPSTASH_REDIS_REST_URL']);
+const token = pick(['KV_REST_API_TOKEN', 'UPSTASH_REDIS_REST_TOKEN']);
+/** Names (never values) of storage-related settings present, for troubleshooting. */
+export const storageEnvNames = Object.keys(process.env).filter((n) => /KV_|REDIS|UPSTASH/i.test(n)).sort();
 
 /** Tiny file-backed stand-in with the same calls, for testing the Redis code path locally. */
 function fakeRedis(file) {
