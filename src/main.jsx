@@ -7,6 +7,7 @@ import './refine.css';
 import './club.css';
 import './features.css';
 import './social.css';
+import './messages.css';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>

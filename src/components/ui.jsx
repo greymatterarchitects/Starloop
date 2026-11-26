@@ -114,7 +114,7 @@ export function BellButton({ dot = 'red', plain }) {
     </div>
   );
 }
-const ALERT_LABEL = { news: 'Breaking', like: 'Like', comment: 'Comment', share: 'Share', follow: 'New follower', campaign: 'Campaign', rank: 'Top Fans' };
+const ALERT_LABEL = { message: 'Message', news: 'Breaking', like: 'Like', comment: 'Comment', share: 'Share', follow: 'New follower', campaign: 'Campaign', rank: 'Top Fans' };
 
 /* ---------- Laurel rank badge ---------- */
 const LAUREL = { 1: '#d6a243', 2: '#a3a3ad', 3: '#c27a4e' };
@@ -163,8 +163,8 @@ export function BottomNavHome() {
     <nav className="bnav bnav--home">
       <NavLink to="/" end className="bnav__item"><House size={24} fill="currentColor" strokeWidth={1.6} /><span>Home</span></NavLink>
       <NavLink to="/clubs" className="bnav__item"><UsersRound size={24} strokeWidth={1.6} /><span>Clubs</span></NavLink>
-      <button className="bnav__fab bnav__fab--plum" aria-label="New message in the Lounge" onClick={() => nav('/chat/all')}><Plus size={30} strokeWidth={2.2} /></button>
-      <NavLink to="/chat" className="bnav__item"><MessageSquareMore size={24} strokeWidth={1.6} /><span>Chat</span></NavLink>
+      <button className="bnav__fab bnav__fab--plum" aria-label="Create a post" onClick={() => nav('/new')}><Plus size={30} strokeWidth={2.2} /></button>
+      <NavLink to="/chat" className="bnav__item"><MessageSquareMore size={24} strokeWidth={1.6} /><span>Messages</span></NavLink>
       <NavLink to="/profile" className="bnav__item"><User size={24} strokeWidth={1.6} /><span>Profile</span></NavLink>
     </nav>
   );
@@ -176,7 +176,7 @@ export function BottomNavDiscover({ onStar }) {
       <NavLink to="/" end className="bnav__item"><House size={26} strokeWidth={1.6} /><span>Home</span></NavLink>
       <NavLink to="/clubs" className="bnav__item"><UsersRound size={26} strokeWidth={1.6} /><span>Clubs</span></NavLink>
       <button className="bnav__fab bnav__fab--orange" aria-label="Star spotlight" onClick={onStar}><Star size={30} fill="#fff" strokeWidth={0} /></button>
-      <NavLink to="/chat" className="bnav__item"><MessageSquareMore size={26} strokeWidth={1.6} /><span>Chat</span></NavLink>
+      <NavLink to="/chat" className="bnav__item"><MessageSquareMore size={26} strokeWidth={1.6} /><span>Messages</span></NavLink>
       <NavLink to="/profile" className="bnav__item"><User size={26} strokeWidth={1.6} /><span>Profile</span></NavLink>
     </nav>
   );

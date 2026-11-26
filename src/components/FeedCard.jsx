@@ -86,8 +86,8 @@ function NewsCard({ item, fan, requireFan, onChange, stars }) {
 }
 
 /* ---------- fan post / campaign / fan art ---------- */
-export function FanCard({ post, reason, fan, requireFan, onChange, showStar = true }) {
-  const [open, setOpen] = useState(false);
+export function FanCard({ post, reason, fan, requireFan, onChange, showStar = true, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
   const [text, setText] = useState('');
   const [copied, setCopied] = useState(false);
   const call = (p, body = {}) => requireFan(() => fanPost(`/api/fans/posts/${post.id}/${p}`, body).then(() => onChange?.()));
@@ -132,7 +132,7 @@ export function FanCard({ post, reason, fan, requireFan, onChange, showStar = tr
       <Reason text={reason} />
       {post.image ? (
         <div className="apost__media">
-          <img src={post.image} alt="" loading="lazy" />
+          <Link to={`/post/${post.id}`} className="apost__imglink" aria-label="Open post"><img src={post.image} alt="" loading="lazy" /></Link>
           <span className="apost__shade" />
           {author}
           {pill}
@@ -143,12 +143,12 @@ export function FanCard({ post, reason, fan, requireFan, onChange, showStar = tr
           )}
         </div>
       ) : (
-        <div className="apost__textcard">{author}<p>{post.text}</p>{pill}</div>
+        <div className="apost__textcard">{author}<Link to={`/post/${post.id}`} className="apost__textlink"><p>{post.text}</p></Link>{pill}</div>
       )}
       <div className="apost__body">
         <Avatar src={post.user?.avatar} name={post.user?.name} size={26} />
         <div>
-          <b>{post.user?.name} <small>· {timeAgo(post.at)}{showStar && post.starName ? <> · in <Link to={`/star/${enc(post.starId)}`}>{post.starName}</Link></> : null}</small></b>
+          <b>{post.user?.name} <small>· <Link to={`/post/${post.id}`} className="apost__time">{timeAgo(post.at)}</Link>{showStar && post.starName ? <> · in <Link to={`/star/${enc(post.starId)}`}>{post.starName}</Link></> : null}</small></b>
           {post.image && post.text && <p>{post.text}</p>}
           {isCampaign && post.goal && (
             <div className="campaign">

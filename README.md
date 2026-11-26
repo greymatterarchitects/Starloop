@@ -29,3 +29,17 @@ npm start          # production: builds React, Express serves it on :5050
 
 The curated headliners per industry are in `server/industries.js`. Add or remove names there.
 Responses are cached on the server (news 12 min, rankings 2 h, movies 6 h), and the UI refreshes every 5 minutes.
+
+## Pages
+
+| Route | What it is |
+|---|---|
+| `/` | Home: stories, trending stars, Star vs Star battle, personal "For you" feed |
+| `/clubs` | Clubs hub: spotlight, trending stars, Hot Now news channels |
+| `/star/:id` | Celebrity club: follow/join, release countdown + check-ins, daily quiz, fan art of the week, Top Fans, posts |
+| `/party/:id` | Release-day watch party: live chat, emoji bursts, live polls |
+| `/chat` | Messages: direct messages between fans (live) + public fan rooms |
+| `/messages/:userId` | One-to-one conversation |
+| `/new` | Create a post, goal campaign or fan art in any club |
+| `/post/:id` | Single post with all comments |
+| `/fan/:id` | Fan profile with badges, posts and clubs |

@@ -43,7 +43,7 @@ export default function Party() {
     });
     return () => es.close();
   }, [info?.open, id]);
-  useEffect(() => end.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), [msgs.length]);
+  useEffect(() => { end.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, [msgs.length]);
 
   const act = async (fn) => {
     setErr('');

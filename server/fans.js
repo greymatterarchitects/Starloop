@@ -14,7 +14,7 @@ const FILE = path.join(DIR, 'db.json');
 export const UPLOADS = path.join(DIR, 'uploads');
 fs.mkdirSync(UPLOADS, { recursive: true });
 
-const empty = () => ({ users: {}, sessions: {}, clubs: {}, starFollows: {}, fanFollows: {}, posts: [], checkins: {}, quiz: {}, notifications: [], bestRank: {}, battles: {} });
+const empty = () => ({ users: {}, sessions: {}, clubs: {}, starFollows: {}, fanFollows: {}, posts: [], checkins: {}, quiz: {}, notifications: [], bestRank: {}, battles: {}, dms: {}, dmRead: {} });
 let db;
 try { db = { ...empty(), ...JSON.parse(fs.readFileSync(FILE, 'utf8')) }; } catch { db = empty(); }
 // Write-through on every change (atomic rename) so nothing is lost if the server restarts.
@@ -693,4 +693,97 @@ fanRouter.post('/party/:starId/vote', route(async (req) => {
   room.poll.votes[uid] = i;
   broadcast(room, 'poll', pollView(room.poll, null));
   return pollView(room.poll, uid);
+}));
+
+/* =====================================================================
+   Direct messages between fans (persisted, live over SSE) + single post
+   ===================================================================== */
+const convKey = (a, b) => [a, b].sort().join(':');
+const userStreams = new Map(); // uid -> Set(res)
+const pushTo = (uid, event, data) => { for (const r of userStreams.get(uid) || []) r.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`); };
+
+function unreadIn(conv, uid) {
+  const seen = db.dmRead?.[uid]?.[conv.key] || '';
+  return conv.messages.filter((m) => m.from !== uid && m.at > seen).length;
+}
+
+fanRouter.get('/dm', route((req) => {
+  const uid = authed(req);
+  db.dms ||= {};
+  const list = Object.values(db.dms)
+    .filter((c) => c.members.includes(uid) && c.messages.length)
+    .map((c) => {
+      const other = c.members.find((m) => m !== uid);
+      const last = c.messages.at(-1);
+      return { user: publicUser(db.users[other]), last: { text: last.text, at: last.at, mine: last.from === uid }, unread: unreadIn(c, uid) };
+    })
+    .filter((c) => c.user)
+    .sort((a, b) => b.last.at.localeCompare(a.last.at));
+  return { conversations: list, unread: list.reduce((n, c) => n + c.unread, 0) };
+}));
+
+fanRouter.get('/dm/stream', (req, res) => {
+  const t = /^[a-f0-9]{64}$/.test(String(req.query.token || '')) ? String(req.query.token) : null;
+  const s = t ? db.sessions[crypto.createHash('sha256').update(t).digest('hex')] : null;
+  if (!s || !db.users[s.userId]) return res.status(401).json({ error: 'Please sign in first' });
+  res.set({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
+  res.flushHeaders();
+  if (!userStreams.has(s.userId)) userStreams.set(s.userId, new Set());
+  userStreams.get(s.userId).add(res);
+  const ping = setInterval(() => res.write(': ping\n\n'), 25000);
+  req.on('close', () => { clearInterval(ping); userStreams.get(s.userId)?.delete(res); });
+});
+
+fanRouter.get('/dm/:userId', route((req) => {
+  const uid = authed(req), other = req.params.userId;
+  need(db.users[other] && other !== uid, 'Fan not found', 404);
+  db.dms ||= {};
+  const key = convKey(uid, other);
+  const conv = db.dms[key];
+  ((db.dmRead ||= {})[uid] ||= {})[key] = now();
+  save();
+  return {
+    user: publicUser(db.users[other]),
+    followsYou: (db.fanFollows[other] || []).includes(uid),
+    youFollow: (db.fanFollows[uid] || []).includes(other),
+    messages: (conv?.messages || []).slice(-200).map((m) => ({ ...m, mine: m.from === uid })),
+  };
+}));
+
+fanRouter.post('/dm/:userId', route((req) => {
+  const uid = authed(req), other = req.params.userId;
+  need(db.users[other] && other !== uid, 'Fan not found', 404);
+  const text = clean(req.body?.text, 1000);
+  need(text, 'Message is empty');
+  db.dms ||= {};
+  const key = convKey(uid, other);
+  const conv = (db.dms[key] ||= { key, members: [uid, other], messages: [] });
+  const last = conv.messages.filter((m) => m.from === uid).at(-1);
+  need(!last || Date.now() - new Date(last.at).getTime() > 800, 'Slow down a little');
+  const msg = { id: newId(), from: uid, text, at: now() };
+  conv.messages.push(msg);
+  if (conv.messages.length > 2000) conv.messages.shift();
+  ((db.dmRead ||= {})[uid] ||= {})[key] = msg.at;
+  const isNew = conv.messages.length === 1 || !conv.messages.slice(0, -1).some((m) => m.from === uid);
+  if (isNew) notify(other, 'message', `${db.users[uid].name} sent you a message`, `/messages/${uid}`, uid);
+  save();
+  pushTo(other, 'dm', { ...msg, mine: false, user: publicUser(db.users[uid]) });
+  pushTo(uid, 'dm', { ...msg, mine: true, to: other });
+  return { ...msg, mine: true };
+}));
+
+fanRouter.get('/posts/:id', route((req) => {
+  const p = findPost(req.params.id);
+  return postView(p, req.uid);
+}));
+
+fanRouter.get('/dm-contacts', route((req) => {
+  const uid = authed(req);
+  const following = db.fanFollows[uid] || [];
+  const followers = Object.entries(db.fanFollows).filter(([, l]) => l.includes(uid)).map(([id]) => id);
+  const q = clean(req.query.q, 40).toLowerCase();
+  const ids = q
+    ? Object.keys(db.users).filter((id) => id !== uid && `${db.users[id].name} ${db.users[id].handle}`.toLowerCase().includes(q)).slice(0, 20)
+    : [...new Set([...following, ...followers])];
+  return ids.map((id) => ({ ...publicUser(db.users[id]), youFollow: following.includes(id), followsYou: followers.includes(id) })).filter((u) => u.id);
 }));

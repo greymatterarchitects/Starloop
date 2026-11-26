@@ -67,7 +67,10 @@ export default function FanProfile() {
           {isMe ? (
             <button className="club-btn club-btn--primary" onClick={() => setEditing(true)}><Pencil size={14} /> Edit profile</button>
           ) : (
-            <button className={`club-btn club-btn--primary ${p?.following ? 'is-on' : ''}`} onClick={follow}>{p?.following ? 'Following' : 'Follow'}</button>
+            <>
+              <button className={`club-btn club-btn--primary ${p?.following ? 'is-on' : ''}`} onClick={follow}>{p?.following ? 'Following' : 'Follow'}</button>
+              <button className="club-btn" onClick={() => act(async () => nav(`/messages/${id}`))}><MessageCircle size={14} /> Message</button>
+            </>
           )}
           <button className="club-btn" onClick={() => setShowClubs((v) => !v)}>Clubs · {p?.stats.clubs ?? 0}</button>
         </div>

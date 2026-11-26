@@ -3,7 +3,9 @@ import { useEffect } from 'react';
 import Home from './pages/Home.jsx';
 import Discover from './pages/Discover.jsx';
 import { ClubDetail } from './pages/Clubs.jsx';
-import Chat, { ChatRoom } from './pages/Chat.jsx';
+import { ChatRoom } from './pages/Chat.jsx';
+import Messages, { MessageThread } from './pages/Messages.jsx';
+import { NewPost, PostPage } from './pages/PostPages.jsx';
 import Profile from './pages/Profile.jsx';
 import TrendingAll from './pages/TrendingAll.jsx';
 import StarClub from './pages/StarClub.jsx';
@@ -25,7 +27,11 @@ export default function App() {
             <Route path="/movies" element={<Navigate to="/chat" replace />} />
             <Route path="/clubs" element={<Discover />} />
             <Route path="/clubs/:key" element={<ClubDetail />} />
-            <Route path="/chat" element={<Chat />} />
+            <Route path="/chat" element={<Messages />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/messages/:userId" element={<MessageThread />} />
+            <Route path="/post/:id" element={<PostPage />} />
+            <Route path="/new" element={<NewPost />} />
             <Route path="/chat/:room" element={<ChatRoom />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/star/:id" element={<StarClub />} />

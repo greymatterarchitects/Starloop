@@ -46,7 +46,7 @@ export function ChatRoom() {
     es.onerror = () => setLive(false);
     return () => es.close();
   }, [room]);
-  useEffect(() => end.current?.scrollIntoView({ behavior: 'smooth' }), [msgs.length]);
+  useEffect(() => { end.current?.scrollIntoView({ behavior: 'smooth' }); }, [msgs.length]);
 
   const send = async (e) => {
     e.preventDefault();
