@@ -6,6 +6,7 @@ import { CLUBS, INDUSTRIES, INDUSTRY_IDS, industryTag } from './industries.js';
 import { allStars, findStar, industryStars, movies, searchWiki } from './wiki.js';
 import { news } from './news.js';
 import { fanRouter, readImage, UPLOADS } from './fans.js';
+import { redis, storageKind } from './storage.js';
 import { OUTLETS, outletItems } from './outlets.js';
 import { discoveredStars } from './discover.js';
 
@@ -32,6 +33,17 @@ const wrap = (fn) => async (req, res) => {
 const validIndustry = (x) => (INDUSTRY_IDS.includes(x) ? x : null);
 const scopeOf = (x) => (x === 'india' ? 'india' : 'global');
 const starsFor = (industry, scope) => (validIndustry(industry) ? industryStars(industry, scope) : allStars(scope));
+
+// Health: which fan-data storage is active and whether it responds (no data returned).
+app.get('/api/health', async (req, res) => {
+  const out = { ok: true, storage: storageKind, platform: process.env.VERCEL ? 'vercel' : 'local' };
+  if (redis) {
+    const t = Date.now();
+    try { await redis.get('starloop:ver'); out.redis = { reachable: true, ms: Date.now() - t }; }
+    catch (e) { out.ok = false; out.redis = { reachable: false, error: e.message }; }
+  }
+  res.json(out);
+});
 
 app.get('/api/industries', (req, res) =>
   res.json(INDUSTRY_IDS.map((id) => ({ id, label: INDUSTRIES[id].label, language: INDUSTRIES[id].language }))),
