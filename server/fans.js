@@ -6,6 +6,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { DATA_DIR } from './paths.js';
+import { redis, storageKind } from './storage.js';
 import { findStar, industryStars, allStars } from './wiki.js';
 import { news } from './news.js';
 import { dailyQuiz, nextRelease } from './facts.js';
@@ -16,10 +17,32 @@ export const UPLOADS = path.join(DIR, 'uploads');
 fs.mkdirSync(UPLOADS, { recursive: true });
 
 const empty = () => ({ users: {}, sessions: {}, clubs: {}, starFollows: {}, fanFollows: {}, posts: [], checkins: {}, quiz: {}, notifications: [], bestRank: {}, battles: {}, dms: {}, dmRead: {} });
-let db;
-try { db = { ...empty(), ...JSON.parse(fs.readFileSync(FILE, 'utf8')) }; } catch { db = empty(); }
-// Write-through on every change (atomic rename) so nothing is lost if the server restarts.
+let db = empty();
+if (!redis) { try { db = { ...empty(), ...JSON.parse(fs.readFileSync(FILE, 'utf8')) }; } catch { db = empty(); } }
+console.log(`Fan data storage: ${storageKind}`);
+
+/* Redis mode: the whole fan database is one JSON document plus a version stamp.
+   Every request reloads it if another server instance changed it, and writes it back before responding. */
+const DB_KEY = 'starloop:db', VER_KEY = 'starloop:ver';
+let loadedVer = null, dirty = false;
+export async function ensureFresh() {
+  if (!redis) return;
+  const ver = await redis.get(VER_KEY);
+  if (ver !== null && String(ver) === String(loadedVer)) return;
+  const doc = ver === null ? null : await redis.get(DB_KEY);
+  db = { ...empty(), ...(typeof doc === 'string' ? JSON.parse(doc) : doc || {}) };
+  loadedVer = ver;
+}
+export async function flush() {
+  if (!redis || !dirty) return;
+  dirty = false;
+  const ver = `${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+  await redis.mset({ [DB_KEY]: JSON.stringify(db), [VER_KEY]: ver });
+  loadedVer = ver;
+}
+// Local mode: write-through on every change (atomic rename). Redis mode: mark dirty; flush() persists.
 const save = () => {
+  if (redis) { dirty = true; return; }
   fs.writeFileSync(`${FILE}.tmp`, JSON.stringify(db));
   fs.renameSync(`${FILE}.tmp`, FILE);
 };
@@ -57,6 +80,17 @@ function publicUser(u) {
   return { id: u.id, name: u.name, handle: u.handle, bio: u.bio, avatar: u.avatar, createdAt: u.createdAt };
 }
 
+const pendingImages = [];
+/** Serve an uploaded image stored in Redis (used by /uploads when the file isn't on disk). */
+export async function readImage(name) {
+  if (!redis || !/^[a-f0-9]{16}.(jpg|png|webp|gif)$/.test(name)) return null;
+  const b64 = await redis.get(`starloop:img:${name}`);
+  return b64 ? Buffer.from(String(b64), 'base64') : null;
+}
+async function flushImages() {
+  while (pendingImages.length) { const [k, v] = pendingImages.shift(); await redis.set(k, v); }
+}
+
 function saveImage(dataUrl) {
   if (!dataUrl) return null;
   const m = /^data:image\/(png|jpe?g|webp|gif);base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl);
@@ -64,7 +98,10 @@ function saveImage(dataUrl) {
   const buf = Buffer.from(m[2], 'base64');
   need(buf.length <= 3 * 1024 * 1024, 'Image too large (max 3 MB)');
   const name = `${newId()}.${m[1] === 'jpeg' ? 'jpg' : m[1]}`;
-  fs.writeFileSync(path.join(UPLOADS, name), buf);
+  if (redis) {
+    need(buf.length <= 700 * 1024, 'Image too large for cloud storage (max 700 KB after resizing)');
+    pendingImages.push([`starloop:img:${name}`, m[2]]);
+  } else fs.writeFileSync(path.join(UPLOADS, name), buf);
   return `/uploads/${name}`;
 }
 
@@ -154,11 +191,16 @@ function postView(p, viewer) {
 /* ---------- router ---------- */
 export const fanRouter = express.Router();
 fanRouter.use(express.json({ limit: '5mb' }));
-fanRouter.use((req, res, next) => { req.uid = userFromReq(req); next(); });
+fanRouter.use(async (req, res, next) => {
+  try { await ensureFresh(); } catch (e) { return res.status(503).json({ error: `Storage unavailable: ${e.message}` }); }
+  req.uid = userFromReq(req);
+  next();
+});
 
 const route = (fn) => async (req, res) => {
   try {
     const out = await fn(req, res);
+    if (redis) { await flushImages(); await flush(); }
     if (out !== undefined) res.json(out);
   } catch (e) {
     res.status(e.status || 500).json({ error: e.message });

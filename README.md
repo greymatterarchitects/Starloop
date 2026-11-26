@@ -43,3 +43,8 @@ Responses are cached on the server (news 12 min, rankings 2 h, movies 6 h), and 
 | `/new` | Create a post, goal campaign or fan art in any club |
 | `/post/:id` | Single post with all comments |
 | `/fan/:id` | Fan profile with badges, posts and clubs |
+
+## Fan data storage
+
+- **On your computer:** `data/db.json` and `data/uploads/` (kept out of Git).
+- **On Vercel:** connect **Upstash for Redis** (Vercel → your project → Storage → Create Database → Upstash for Redis → Connect). It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`; the server detects them and stores accounts, posts, messages, votes and uploaded photos there. Without it, Vercel only keeps fan data until the function goes idle.

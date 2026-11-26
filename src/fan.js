@@ -60,7 +60,7 @@ export function useFan() {
   };
 }
 
-export function readImage(file, max = 1600) {
+export function readImage(file, max = 1280) {
   return new Promise((resolve, reject) => {
     if (!file) return resolve(null);
     const img = new Image();
@@ -71,7 +71,7 @@ export function readImage(file, max = 1600) {
       c.height = Math.round(img.height * k);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(img.src);
-      resolve(c.toDataURL('image/jpeg', 0.85));
+      resolve(c.toDataURL('image/jpeg', 0.8));
     };
     img.onerror = () => reject(new Error('Could not read that image'));
     img.src = URL.createObjectURL(file);

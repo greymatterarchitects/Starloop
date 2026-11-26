@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { CLUBS, INDUSTRIES, INDUSTRY_IDS, industryTag } from './industries.js';
 import { allStars, findStar, industryStars, movies, searchWiki } from './wiki.js';
 import { news } from './news.js';
-import { fanRouter, UPLOADS } from './fans.js';
+import { fanRouter, readImage, UPLOADS } from './fans.js';
 import { OUTLETS, outletItems } from './outlets.js';
 import { discoveredStars } from './discover.js';
 
@@ -13,6 +13,11 @@ const app = express();
 // Fan profiles, clubs, posts (larger body limit for photo uploads) – mounted before the default JSON parser.
 app.use('/api/fans', fanRouter);
 app.use('/uploads', express.static(UPLOADS, { maxAge: '7d' }));
+app.get('/uploads/:name', async (req, res) => {
+  const img = await readImage(req.params.name).catch(() => null);
+  if (!img) return res.status(404).end();
+  res.type(req.params.name.split('.').pop()).set('Cache-Control', 'public, max-age=604800, immutable').send(img);
+});
 app.use(express.json({ limit: '20kb' }));
 const PORT = process.env.API_PORT || process.env.PORT || 5050;
 
