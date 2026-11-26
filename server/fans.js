@@ -5,11 +5,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { DATA_DIR } from './paths.js';
 import { findStar, industryStars, allStars } from './wiki.js';
 import { news } from './news.js';
 import { dailyQuiz, nextRelease } from './facts.js';
 
-const DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data');
+const DIR = DATA_DIR;
 const FILE = path.join(DIR, 'db.json');
 export const UPLOADS = path.join(DIR, 'uploads');
 fs.mkdirSync(UPLOADS, { recursive: true });

@@ -163,7 +163,10 @@ if (fs.existsSync(dist)) {
   app.get(/^(?!\/api).*/, (req, res) => res.sendFile(path.join(dist, 'index.html')));
 }
 
-app.listen(PORT, () => {
+export default app;
+
+// Locally (not on Vercel) run a normal long-lived server.
+if (!process.env.VERCEL) app.listen(PORT, () => {
   console.log(`StarLoop API on http://localhost:${PORT}`);
   // Warm the caches so the first page load is fast.
   outletItems().catch(() => {});

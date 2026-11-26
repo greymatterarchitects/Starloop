@@ -105,7 +105,11 @@ export async function roster(id) {
   const ind = INDUSTRIES[id];
   const list = ind.stars.map(([name, title, newsQuery]) => ({ name, title, newsQuery, discovered: false }));
   let found = [];
-  try { found = (await discoveredStars())[id] || []; } catch (e) { console.warn('discovery failed:', e.message); }
+  try {
+    const timeout = new Promise((r) => setTimeout(() => r(null), 6000));
+    const d = await Promise.race([discoveredStars(), timeout]); // keeps running in the background if slow
+    found = d?.[id] || [];
+  } catch (e) { console.warn('discovery failed:', e.message); }
   const seen = new Set(list.map((s) => norm(s.title)));
   for (const d of found.slice(0, 30)) {
     if (seen.has(norm(d.title))) continue;

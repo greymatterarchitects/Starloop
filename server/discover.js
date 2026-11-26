@@ -5,8 +5,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cached, chunk, getJson, limiter } from './util.js';
+import { DATA_DIR } from './paths.js';
 
-const CACHE_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'data', 'cache', 'discovered.json');
+const CACHE_FILE = path.join(DATA_DIR, 'cache', 'discovered.json');
 
 const H = 3600_000;
 const UA = { 'User-Agent': 'StarLoop/1.0 (local development app)' };
