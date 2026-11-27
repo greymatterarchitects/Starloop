@@ -235,3 +235,25 @@ body, .stage { background: #fbf8fd; }
 
 /* alerts pop-up must sit above the search bar */
 .topbar { z-index: 30; }
+
+/* ---------- more translucency: icons, tabs, bottom bar ---------- */
+:root { --glass: rgba(255, 255, 255, 0.3); --glass-strong: rgba(255, 255, 255, 0.45); --glass-line: rgba(255, 255, 255, 0.7); }
+.bell, .club-hero__btn, .icon-btn, .chips--home .chip, .chips--disc .chip, .club-btn, .seg, .quiz-cta, .release--none { background: var(--glass); }
+.chips--home .chip.is-active, .chips--disc .chip.is-active, .seg button.is-active {
+  background: linear-gradient(115deg, rgba(124, 157, 255, 0.82) 0%, rgba(197, 139, 255, 0.82) 38%, rgba(255, 142, 199, 0.82) 68%, rgba(255, 176, 127, 0.82) 100%);
+  backdrop-filter: blur(12px) saturate(180%);
+}
+.search { background: linear-gradient(rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.32)) padding-box, var(--holo) border-box; }
+.bnav.bnav--home, .bnav.bnav--disc { background: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.2)); backdrop-filter: blur(22px) saturate(200%); -webkit-backdrop-filter: blur(22px) saturate(200%); }
+.bnav .bnav__item.active::before { opacity: 0.9; }
+.bnav .bnav__fab--plum, .bnav .bnav__fab--orange { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.45), 0 14px 28px -8px rgba(197, 139, 255, 0.75), inset 0 -4px 10px rgba(90, 40, 160, 0.2); opacity: 0.95; }
+.me-avatar { background: linear-gradient(115deg, rgba(124, 157, 255, 0.75), rgba(197, 139, 255, 0.75), rgba(255, 142, 199, 0.75), rgba(255, 176, 127, 0.75)); }
+
+/* See all link on Home's Trending Stars */
+.trending__see { display: inline-flex; align-items: center; gap: 2px; margin-top: 8px; font: 600 12px var(--sans); color: #7b4fd0; }
+.trending__see:hover { color: var(--ink); }
+.trending__right { display: flex; flex-direction: column; align-items: flex-end; }
+
+/* keep icons readable on the clearer bar */
+.bnav .bnav__item { color: #3a2e57; }
+.bnav .bnav__item:not(.active) svg { filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.7)); }

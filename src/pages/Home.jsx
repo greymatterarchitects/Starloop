@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, ChevronRight } from 'lucide-react';
 import { INDUSTRY_CHIPS, readCache, useApi, useLocal, writeCache } from '../api.js';
 import { Avatar, StoryRing, BellButton, BottomNavHome, Chips, ErrorNote, Laurel, Logo, ProfileAvatar, Skel, Verified } from '../components/ui.jsx';
 import SearchBox from '../components/SearchBox.jsx';
@@ -57,9 +57,12 @@ export default function Home() {
             <h2>Trending Stars</h2>
             <p title="Ranked from live Wikipedia page-view data for the last 7 days">Real-time popularity across the film world</p>
           </div>
-          <div className="seg">
-            <button className={scope === 'india' ? 'is-active' : ''} onClick={() => setScope('india')}>India</button>
-            <button className={scope === 'global' ? 'is-active' : ''} onClick={() => setScope('global')}>Global</button>
+          <div className="trending__right">
+            <div className="seg">
+              <button className={scope === 'india' ? 'is-active' : ''} onClick={() => setScope('india')}>India</button>
+              <button className={scope === 'global' ? 'is-active' : ''} onClick={() => setScope('global')}>Global</button>
+            </div>
+            <Link to={`/trending?industry=${industry}`} className="trending__see">See All <ChevronRight size={16} /></Link>
           </div>
         </div>
         <ErrorNote error={ranked.error} />
