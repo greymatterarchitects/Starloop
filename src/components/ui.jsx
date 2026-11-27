@@ -4,40 +4,25 @@ import { Bell, House, UsersRound, MessageSquareMore, Plus, Star, User } from 'lu
 import { timeAgo, useLocal, useSeen } from '../api.js';
 import { fanGet, fanPost, useFan } from '../fan.js';
 
-/* ---------- Logo ---------- */
-export function Logo({ variant = 'outline' }) {
-  if (variant === 'solid') {
-    return (
-      <div className="logo logo--solid">
-        <svg viewBox="0 0 48 44" width="46" height="42" aria-hidden>
-          <defs>
-            <linearGradient id="lgS" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stopColor="#c8102e" />
-              <stop offset=".55" stopColor="#f0521f" />
-              <stop offset="1" stopColor="#ffbf2f" />
-            </linearGradient>
-          </defs>
-          <path fill="url(#lgS)" d="M27 2l4.6 12.6L45 15.3l-10.6 8.4L38 37l-11-7.6-11.8 7.4 4-13.2L1 21.8l17.6-1.6z" />
-          <path fill="#fff" opacity=".22" d="M27 2l4.6 12.6L45 15.3 27 20z" />
-        </svg>
-        <span>StarLoop</span>
-      </div>
-    );
-  }
+/* ---------- Logo: "starloop" wordmark, the "oo" drawn as an iridescent infinity loop with a sparkle ---------- */
+export function Logo() {
   return (
-    <div className="logo logo--outline">
-      <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden>
+    <div className="logo logo--sl" role="img" aria-label="starloop">
+      <span className="logo__t">starl</span>
+      <svg className="logo__inf" viewBox="0 -30 124 86" aria-hidden>
         <defs>
-          <linearGradient id="lgO" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#e2557a" />
-            <stop offset=".5" stopColor="#9b2a5c" />
-            <stop offset="1" stopColor="#e7a33e" />
+          <linearGradient id="slInf" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#7c9dff" />
+            <stop offset=".42" stopColor="#c58bff" />
+            <stop offset=".72" stopColor="#ff8ec7" />
+            <stop offset="1" stopColor="#ffb07f" />
           </linearGradient>
         </defs>
-        <path fill="none" stroke="url(#lgO)" strokeWidth="3.4" strokeLinejoin="round" d="M24 4l5.6 12.6 13.6 1.3-10.3 9 3 13.4L24 33.2l-11.9 7.1 3-13.4-10.3-9 13.6-1.3z" />
-        <path fill="none" stroke="url(#lgO)" strokeWidth="2.4" strokeLinecap="round" d="M6 34c8 6 24 8 36-6" opacity=".85" />
+        <path d="M62 28C54 15 47 7 33 7a21 21 0 0 0 0 42c14 0 21-8 29-21s15-21 29-21a21 21 0 0 1 0 42c-14 0-21-8-29-21z"
+          fill="none" stroke="url(#slInf)" strokeWidth="13" strokeLinejoin="round" />
+        <path className="logo__spark" d="M62 -28c1.6 7.4 4.6 10.4 12 12-7.4 1.6-10.4 4.6-12 12-1.6-7.4-4.6-10.4-12-12 7.4-1.6 10.4-4.6 12-12z" />
       </svg>
-      <span>StarLoop</span>
+      <span className="logo__t">p</span>
     </div>
   );
 }

@@ -58,9 +58,6 @@ export default function StarClub() {
       <header className="club-hero">
         <button className="club-hero__btn" onClick={() => nav(-1)} aria-label="Back"><ArrowLeft size={20} /></button>
         <Link className="club-hero__btn" to={`/chat/${s?.industry || 'all'}`} aria-label="Fan chat"><MessageCircle size={19} /></Link>
-        <div className="club-rating" title={s ? `Popularity ${s.score.toFixed(1)}/10 from this week's Wikipedia readers` : ''}>
-          {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={14} fill={i <= rating ? '#f4b400' : 'none'} color={i <= rating ? '#e0a100' : '#c9b2bc'} strokeWidth={1.8} />)}
-        </div>
       </header>
 
       <section className="club-sheet">
@@ -71,6 +68,7 @@ export default function StarClub() {
           <div><b>{club ? compact(club.followers) : '–'}</b><small>Followers</small></div>
           <div><b>{club ? compact(club.members) : '–'}</b><small>Club members</small></div>
         </div>
+        <RatingTicket star={s} rating={rating} />
         <h1 className="club-handle">{s ? <>{handle} <Verified size={16} /></> : <Skel w={120} h={16} />}</h1>
         {s && <p className="club-role">{s.role} · {s.industryLabel}</p>}
         {club?.champion && <p className="champion"><Trophy size={13} /> Battle champion · beat {club.champion.against} last week</p>}
@@ -341,3 +339,26 @@ export function AuthSheet({ fan, onClose, onDone }) {
   );
 }
 export const JoinSheet = AuthSheet;
+
+/* Star rating as a holographic admission ticket (popularity from this week's Wikipedia readers). */
+function RatingTicket({ star, rating }) {
+  const score = star ? star.score.toFixed(1) : '–';
+  const serial = star ? String(Math.abs([...star.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 7))).slice(0, 6).padStart(6, '0') : '000000';
+  return (
+    <div className="ticket" title={star ? `Popularity ${score}/10 from this week's Wikipedia readers` : ''}>
+      <div className="ticket__stub">
+        <small>Fan score</small>
+        <b>{score}</b>
+        <i>/10</i>
+      </div>
+      <div className="ticket__main">
+        <span className="ticket__top"><em>Worldwide</em><em>Week pass</em></span>
+        <span className="ticket__stars" aria-label={`${rating} out of 5 stars`}>
+          {[1, 2, 3, 4, 5].map((i) => <Star key={i} size={19} className={i <= rating ? 'is-on' : ''} strokeWidth={1.6} />)}
+        </span>
+        <span className="ticket__bottom"><em>{star ? star.industryLabel : ''} · Trending</em><span className="ticket__barcode" aria-hidden />{serial}</span>
+      </div>
+      <span className="ticket__admit">Admit one</span>
+    </div>
+  );
+}
