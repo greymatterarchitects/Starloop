@@ -830,3 +830,12 @@ fanRouter.get('/dm-contacts', route((req) => {
     : [...new Set([...following, ...followers])];
   return ids.map((id) => ({ ...publicUser(db.users[id]), youFollow: following.includes(id), followsYou: followers.includes(id) })).filter((u) => u.id);
 }));
+
+/** #1 fan for several stars at once (for the Home trending tiles). ?ids=Prabhas,Allu_Arjun */
+fanRouter.get('/topfans', route((req) => {
+  const ids = String(req.query.ids || '').split(',').map((s) => starKey(s)).filter(Boolean).slice(0, 20);
+  return Object.fromEntries(ids.map((id) => {
+    const top = fanScores(id)[0];
+    return [id, top ? { ...top.user, points: top.points } : null];
+  }));
+}));

@@ -6,6 +6,7 @@ import { Avatar, StoryRing, BellButton, BottomNavHome, Chips, ErrorNote, Laurel,
 import SearchBox from '../components/SearchBox.jsx';
 import FeedCard from '../components/FeedCard.jsx';
 import BattleCard from '../components/BattleCard.jsx';
+import TrendTiles from '../components/TrendTiles.jsx';
 import { AuthSheet } from './StarClub.jsx';
 import { fanGet, useFan } from '../fan.js';
 
@@ -49,7 +50,7 @@ export default function Home() {
 
       <Chips items={INDUSTRY_CHIPS} value={industry} onChange={setIndustry} />
 
-      <HeroCarousel stars={list.slice(0, 4)} onExplore={openClub} />
+      <TrendTiles stars={list.slice(0, 8)} />
 
       <section className="card trending">
         <div className="trending__head">
@@ -110,30 +111,4 @@ function Bar({ label, value, kind }) {
   );
 }
 
-function HeroCarousel({ stars, onExplore }) {
-  const [i, setI] = useState(0);
-  useEffect(() => { setI(0); }, [stars[0]?.id]);
-  useEffect(() => {
-    if (stars.length < 2) return;
-    const t = setInterval(() => setI((x) => (x + 1) % stars.length), 5000);
-    return () => clearInterval(t);
-  }, [stars.length]);
-  const s = stars[i];
-  return (
-    <section className="hero">
-      {stars.map((st, k) => (
-        <img key={st.id} className={`hero__img ${k === i ? 'is-on' : ''}`} src={st.image} alt={st.name} referrerPolicy="no-referrer" />
-      ))}
-      {!s && <Skel w="55%" h="100%" r={0} style={{ position: 'absolute', right: 0, top: 0 }} />}
-      <div className="hero__text">
-        <span className="eyebrow">TOP STARS <i /></span>
-        <h1>Trending<br />This Week</h1>
-        <button className="btn-plum" onClick={() => s && onExplore(s)}>Explore Now <ArrowRight size={15} /></button>
-      </div>
-      <div className="dots">
-        {(stars.length ? stars : [0, 1, 2, 3]).map((_, k) => <button key={k} className={k === i ? 'is-on' : ''} onClick={() => setI(k)} aria-label={`Slide ${k + 1}`} />)}
-      </div>
-    </section>
-  );
-}
 
