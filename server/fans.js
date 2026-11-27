@@ -839,3 +839,10 @@ fanRouter.get('/topfans', route((req) => {
     return [id, top ? { ...top.user, points: top.points } : null];
   }));
 }));
+
+/** StarLoop fan base for a star: followers and club members (real accounts). */
+export function fanBase(starId) {
+  const followers = (db.starFollows[starId] || []).length;
+  const members = (db.clubs[starId]?.members || []).length;
+  return { followers, members };
+}

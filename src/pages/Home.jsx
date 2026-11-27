@@ -16,6 +16,9 @@ export default function Home() {
   const nav = useNavigate();
   const openClub = (s) => nav(`/star/${encodeURIComponent(s.id)}`);
   const stars = useApi(`/api/stars?industry=${industry}&scope=global`);
+  // Circle row: biggest fan bases (StarLoop followers, club members, then 12-month readership)
+  const fanbase = useApi(`/api/fanbase?industry=${industry}&limit=16`);
+  const fanList = fanbase.data?.stars || [];
   const ranked = useApi(`/api/stars?industry=${industry}&scope=${scope}&limit=3`);
   const fan = useFan();
   const [feed, setFeed] = useState({ data: null, error: null });
@@ -39,9 +42,9 @@ export default function Home() {
       <SearchBox />
 
       <div className="stories">
-        {list.length
-          ? list.map((s) => (
-              <StoryRing key={s.id} star={s} onClick={() => openClub(s)} />
+        {fanList.length
+          ? fanList.map((s) => (
+              <StoryRing key={s.id} star={{ ...s, growthPct: undefined }} onClick={() => openClub(s)} />
             ))
           : Array.from({ length: 6 }, (_, i) => (
               <div key={i} className="story-ring"><Skel w={66} h={66} r={99} /><Skel w={52} h={10} style={{ marginTop: 8 }} /></div>

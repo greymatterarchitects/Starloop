@@ -3,9 +3,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { CLUBS, INDUSTRIES, INDUSTRY_IDS, industryTag } from './industries.js';
-import { allStars, findStar, industryStars, movies, searchWiki } from './wiki.js';
+import { allStars, findStar, industryStars, movies, searchWiki, yearlyViews } from './wiki.js';
 import { news } from './news.js';
-import { fanRouter, readImage, UPLOADS } from './fans.js';
+import { ensureFresh, fanBase, fanRouter, readImage, UPLOADS } from './fans.js';
 import { redis, storageEnvNames, storageKind } from './storage.js';
 import { tmdbEnabled } from './portraits.js';
 import { bestPortrait } from './commons.js';
@@ -61,6 +61,15 @@ app.get('/api/portraits', wrap(async (req) => {
   const ids = String(req.query.ids || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 12);
   const out = await Promise.all(ids.map(async (id) => [id, await bestPortrait(await findStar(id)).catch(() => null)]));
   return Object.fromEntries(out);
+}));
+
+// Stars ordered by fan base: StarLoop followers, then club members, then 12-month Wikipedia readership.
+app.get('/api/fanbase', wrap(async (req) => {
+  await ensureFresh();
+  const list = validIndustry(req.query.industry) ? await industryStars(req.query.industry, 'global') : (await allStars('global')).slice(0, 40);
+  const rows = await Promise.all(list.map(async (s) => ({ ...s, ...fanBase(s.id), yearlyViews: await yearlyViews(s.id) })));
+  rows.sort((a, b) => b.followers - a.followers || b.members - a.members || b.yearlyViews - a.yearlyViews);
+  return { stars: rows.slice(0, Number(req.query.limit) || 20) };
 }));
 
 app.get('/api/industries', (req, res) =>

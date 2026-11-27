@@ -64,6 +64,17 @@ export async function wikiProfiles(titles, regionalLang) {
 const ymd = (d) => d.toISOString().slice(0, 10).replace(/-/g, '');
 
 /** Daily human page views (last 14 days) – the real-world popularity signal behind trend scores. */
+/** Total English Wikipedia views over the last 12 months — a steady measure of fan-base size (not a weekly spike). */
+export async function yearlyViews(title) {
+  return cached(`pvy:${title}`, 24 * H, async () => {
+    const end = new Date(); end.setUTCDate(1);
+    const start = new Date(end); start.setUTCFullYear(end.getUTCFullYear() - 1);
+    const f = (d) => d.toISOString().slice(0, 7).replace('-', '') + '0100';
+    const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/${encodeURIComponent(title.replace(/ /g, '_'))}/monthly/${f(start)}/${f(end)}`;
+    try { return ((await wikiLimit(() => getJson(url))).items || []).reduce((a, i) => a + i.views, 0); } catch { return 0; }
+  });
+}
+
 export async function pageviews(project, title) {
   return cached(`pv:${project}:${title}`, 3 * H, async () => {
     const end = new Date(Date.now() - 86400_000);
