@@ -329,3 +329,16 @@ body, .stage { background: #fbf8fd; }
 .ring--sunset, .ring--magenta, .ring--rose, .ring--coral, .ring--orange, .ring--violet { box-shadow: none; }
 .club-tabs button.is-active::after { background: var(--calm-ink); }
 .trending__see { color: #6b4fb0; }
+
+/* Primary buttons: pale lavender instead of dark ink */
+.btn-plum, .btn-gold, .club-btn--primary, .follow-btn, .campaign__join, .msgs-new, .apost__vote, .post-top__go, .new-submit {
+  background: #e9e1fb !important; color: #3b2a6b !important; text-shadow: none;
+  border: 1px solid rgba(123, 79, 208, 0.18) !important;
+  box-shadow: 0 1px 2px rgba(60, 30, 120, 0.06), 0 4px 12px -8px rgba(123, 79, 208, 0.35) !important;
+}
+.btn-plum:hover, .club-btn--primary:hover, .follow-btn:hover, .campaign__join:hover, .new-submit:hover, .post-top__go:hover { background: #dfd4f8 !important; }
+.btn-plum svg, .club-btn--primary svg { color: #3b2a6b; }
+.club-btn.is-on, .follow-btn.is-on, .campaign__join.is-on, .apost__vote.is-on {
+  background: #fff !important; color: #5b4a86 !important; border: 1px solid rgba(123, 79, 208, 0.22) !important;
+}
+.composer button, .fpost__comments form button, .quiz-cta__icon, .room__icon { background: #e9e1fb; color: #3b2a6b; }
