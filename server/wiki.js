@@ -1,6 +1,7 @@
 import { INDUSTRIES, INDUSTRY_IDS } from './industries.js';
 import { cached, chunk, clamp, getJson, limiter } from './util.js';
 import { discoveredStars } from './discover.js';
+import { tmdbPortrait } from './portraits.js';
 
 const H = 3600_000;
 const wikiLimit = limiter(6);
@@ -149,6 +150,7 @@ export async function industryStars(id, scope = 'global') {
           id: title, name, fullName: p.title.replace(/ \(.*\)$/, ''), industry: id, industryLabel: ind.label,
           role: rolesFrom(`${p.description}. ${p.extract}`), description: p.description, bio: p.extract,
           image: p.image, imageOriginal: p.imageOriginal, wikiUrl: p.wikiUrl, qid: p.qid,
+          portrait: (await tmdbPortrait(p.title.replace(/ (.*)$/, ''))) || null,
           newsQuery: newsQuery || name, discovered, source: project, series, ...s,
         };
       }),

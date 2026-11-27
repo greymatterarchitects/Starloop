@@ -23,17 +23,17 @@ export default function TrendTiles({ stars }) {
         <small>Most-read stars · last 7 days</small>
       </div>
       <div className="ttiles">
-        {stars.length === 0 && Array.from({ length: 3 }, (_, i) => <Skel key={i} w={148} h={226} r={30} style={{ flex: '0 0 auto' }} />)}
+        {stars.length === 0 && Array.from({ length: 3 }, (_, i) => <Skel key={i} w={104} h={152} r={22} style={{ flex: '0 0 auto' }} />)}
         {stars.map((s, i) => {
           const f = fans[s.id];
           return (
             <Link key={s.id} to={`/star/${enc(s.id)}`} className="ttile">
-              <img src={s.image} alt={s.name} loading={i < 3 ? 'eager' : 'lazy'} referrerPolicy="no-referrer" />
+              <img src={s.portrait || s.image} alt={s.name} loading={i < 3 ? 'eager' : 'lazy'} referrerPolicy="no-referrer" />
               <span className="ttile__shade" />
               <em className="ttile__tag">#{i + 1}</em>
               <b className="ttile__name">{s.name}</b>
               <span className={`ttile__fan ${f ? '' : 'is-empty'}`} title={f ? `Top fan: ${f.name} · ${f.points} pts` : 'No top fan yet — be the first'}>
-                {f ? <Avatar src={f.avatar} name={f.name} size={34} /> : <Plus size={16} />}
+                {f ? <Avatar src={f.avatar} name={f.name} size={24} /> : <Plus size={12} />}
               </span>
             </Link>
           );
