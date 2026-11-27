@@ -257,3 +257,75 @@ body, .stage { background: #fbf8fd; }
 /* keep icons readable on the clearer bar */
 .bnav .bnav__item { color: #3a2e57; }
 .bnav .bnav__item:not(.active) svg { filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.7)); }
+
+/* =====================================================================
+   CALM PASS — quieter, more mainstream controls. The iridescent gradient
+   is kept for brand moments only (logo, ticket, + orb, battle card).
+   ===================================================================== */
+:root {
+  --calm-fill: rgba(255, 255, 255, 0.55);
+  --calm-line: rgba(28, 18, 51, 0.08);
+  --calm-shadow: 0 1px 2px rgba(28, 18, 51, 0.04), 0 4px 12px -6px rgba(28, 18, 51, 0.08);
+  --calm-active: #efeafb;
+  --calm-ink: #2b2145;
+}
+
+/* industry tabs */
+.chips--home .chip, .chips--disc .chip {
+  color: #5d5475; font-weight: 500;
+  background: var(--calm-fill); border: 1px solid var(--calm-line); box-shadow: none; backdrop-filter: blur(10px);
+}
+.chips--home .chip.is-active, .chips--disc .chip.is-active {
+  color: var(--calm-ink); font-weight: 600; text-shadow: none;
+  background: var(--calm-active); border: 1px solid rgba(123, 79, 208, 0.22); box-shadow: none; backdrop-filter: none;
+}
+
+/* India / Global switch: iOS-style segmented control */
+.seg { background: rgba(28, 18, 51, 0.05); border: 0; box-shadow: none; backdrop-filter: none; }
+.seg button { color: #6b6282; font-weight: 500; }
+.seg button.is-active { color: var(--calm-ink); font-weight: 600; background: #fff; box-shadow: 0 1px 3px rgba(28, 18, 51, 0.12); text-shadow: none; }
+
+/* bell, back, chat, search icon buttons */
+.bell, .club-hero__btn, .icon-btn {
+  background: var(--calm-fill); border: 1px solid var(--calm-line); color: var(--calm-ink);
+  box-shadow: var(--calm-shadow); backdrop-filter: blur(10px);
+}
+.bell__count { background: #e2557a; }
+.me-avatar, .me-avatar--orange { padding: 2px; background: #fff; box-shadow: var(--calm-shadow), 0 0 0 1px var(--calm-line); }
+
+/* search bar */
+.search {
+  background: rgba(255, 255, 255, 0.6) padding-box; border: 1px solid var(--calm-line);
+  box-shadow: var(--calm-shadow); backdrop-filter: blur(12px);
+}
+.search:focus-within { border-color: rgba(123, 79, 208, 0.35); box-shadow: 0 0 0 4px rgba(123, 79, 208, 0.08); }
+.search__spark { color: #a58bd8; fill: #ece4fb; }
+
+/* buttons: solid soft-ink primary, quiet outline secondary */
+.btn-plum, .btn-gold, .club-btn--primary, .follow-btn, .battle__btn, .campaign__join, .release__actions button, .release__party, .msgs-new, .apost__vote, .post-top__go, .new-submit {
+  background: #2b2145 !important; color: #fff !important; text-shadow: none;
+  box-shadow: 0 1px 2px rgba(28, 18, 51, 0.15), 0 6px 14px -8px rgba(43, 33, 69, 0.45) !important;
+}
+.btn-plum:hover, .club-btn--primary:hover, .follow-btn:hover { background: #3a2e5c !important; }
+.battle__btn, .release__actions button, .release__party { background: #fff !important; color: var(--calm-ink) !important; }
+.club-btn { background: var(--calm-fill); border: 1px solid var(--calm-line); box-shadow: none; color: var(--calm-ink); }
+.club-btn.is-on, .follow-btn.is-on, .campaign__join.is-on, .release__actions button.is-on, .apost__vote.is-on {
+  background: var(--calm-active) !important; color: var(--calm-ink) !important;
+  border: 1px solid rgba(123, 79, 208, 0.22) !important; box-shadow: none !important;
+}
+.apost__author .follow-btn { background: rgba(255, 255, 255, 0.9) !important; color: var(--calm-ink) !important; box-shadow: none !important; }
+
+/* bottom bar: quiet active state, softer + orb */
+.bnav .bnav__item.active { color: var(--calm-ink); }
+.bnav .bnav__item.active::before { opacity: 1; background: rgba(255, 255, 255, 0.85); box-shadow: 0 1px 3px rgba(28, 18, 51, 0.12); }
+.bnav .bnav__item.active svg { filter: none; }
+.bnav .bnav__fab--plum, .bnav .bnav__fab--orange {
+  opacity: 1;
+  background: radial-gradient(60% 60% at 30% 25%, rgba(255, 255, 255, 0.55), transparent 60%), linear-gradient(135deg, #a9b9ff, #d2b0ff 45%, #ffb9d8 80%, #ffd0b0);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6), 0 8px 18px -8px rgba(150, 110, 210, 0.55);
+}
+
+/* softer accents elsewhere */
+.ring--sunset, .ring--magenta, .ring--rose, .ring--coral, .ring--orange, .ring--violet { box-shadow: none; }
+.club-tabs button.is-active::after { background: var(--calm-ink); }
+.trending__see { color: #6b4fb0; }
