@@ -54,3 +54,5 @@ Responses are cached on the server (news 12 min, rankings 2 h, movies 6 h), and 
 Set `TMDB_READ_TOKEN` (TMDB "API Read Access Token") or `TMDB_API_KEY` to use TMDB's professional profile photos for the Home trending tiles. A photo is only used when TMDB has an exact name match; otherwise the Wikipedia photo is kept. Get a free key at themoviedb.org → Settings → API.
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+Trending tiles otherwise use **Wikimedia Commons** portraits: the server scans each star's Commons category, prefers portrait/photoshoot/promo images over event shots, and picks the one with the lightest, most even background (edge analysis with `sharp`). Photos are freely licensed (CC BY / BY-SA); the photographer and licence show on hover.

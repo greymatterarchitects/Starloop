@@ -8,6 +8,7 @@ import { news } from './news.js';
 import { fanRouter, readImage, UPLOADS } from './fans.js';
 import { redis, storageEnvNames, storageKind } from './storage.js';
 import { tmdbEnabled } from './portraits.js';
+import { bestPortrait } from './commons.js';
 import { OUTLETS, outletItems } from './outlets.js';
 import { discoveredStars } from './discover.js';
 
@@ -22,7 +23,7 @@ app.get('/uploads/:name', async (req, res) => {
 });
 app.use(express.json({ limit: '20kb' }));
 // Public, non-personal data can be served from Vercel's CDN: instant for visitors, fresh within minutes.
-const CDN = { '/api/stars': 600, '/api/news': 600, '/api/clubs': 600, '/api/movies': 3600, '/api/industries': 86400, '/api/search': 3600, '/api/sources': 900 };
+const CDN = { '/api/portraits': 86400, '/api/stars': 600, '/api/news': 600, '/api/clubs': 600, '/api/movies': 3600, '/api/industries': 86400, '/api/search': 3600, '/api/sources': 900 };
 app.use((req, res, next) => {
   if (req.method === 'GET') {
     const hit = Object.keys(CDN).find((p) => req.path === p || req.path.startsWith(p + '/'));
@@ -54,6 +55,13 @@ app.get('/api/health', async (req, res) => {
   }
   res.json(out);
 });
+
+// Clean, light-background portraits from Wikimedia Commons for several stars. ?ids=Prabhas,Allu_Arjun
+app.get('/api/portraits', wrap(async (req) => {
+  const ids = String(req.query.ids || '').split(',').map((s) => s.trim()).filter(Boolean).slice(0, 12);
+  const out = await Promise.all(ids.map(async (id) => [id, await bestPortrait(await findStar(id)).catch(() => null)]));
+  return Object.fromEntries(out);
+}));
 
 app.get('/api/industries', (req, res) =>
   res.json(INDUSTRY_IDS.map((id) => ({ id, label: INDUSTRIES[id].label, language: INDUSTRIES[id].language }))),

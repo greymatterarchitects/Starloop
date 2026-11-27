@@ -11,6 +11,12 @@ export default function TrendTiles({ stars }) {
   const ids = stars.map((s) => s.id).join(',');
   const key = `topfans:${ids}`;
   const [fans, setFans] = useState(() => readCache(key) || {});
+  const pkey = `portraits:${ids}`;
+  const [photos, setPhotos] = useState(() => readCache(pkey) || {});
+  useEffect(() => {
+    if (!ids) return;
+    fetch(`/api/portraits?ids=${enc(ids)}`).then((r) => r.json()).then((d) => { setPhotos(d); writeCache(pkey, d); }).catch(() => {});
+  }, [ids]);
   useEffect(() => {
     if (!ids) return;
     fetch(`/api/fans/topfans?ids=${enc(ids)}`).then((r) => r.json()).then((d) => { setFans(d); writeCache(key, d); }).catch(() => {});
@@ -28,7 +34,7 @@ export default function TrendTiles({ stars }) {
           const f = fans[s.id];
           return (
             <Link key={s.id} to={`/star/${enc(s.id)}`} className="ttile">
-              <img src={s.portrait || s.image} alt={s.name} loading={i < 3 ? 'eager' : 'lazy'} referrerPolicy="no-referrer" />
+              <img src={photos[s.id]?.url || s.portrait || s.image} alt={s.name} title={photos[s.id] ? `Photo: ${photos[s.id].credit}${photos[s.id].license ? ` · ${photos[s.id].license}` : ''} · Wikimedia Commons` : undefined} loading={i < 3 ? 'eager' : 'lazy'} referrerPolicy="no-referrer" />
               <span className="ttile__shade" />
               <em className="ttile__tag">#{i + 1}</em>
               <b className="ttile__name">{s.name}</b>
